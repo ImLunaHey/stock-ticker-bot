@@ -14,7 +14,7 @@ export const makeTickerImage = (profile: StockProfile, quote: StockQuote) => {
   const prevCloseDotPosition = Math.max(30, Math.min(490, ((quote.pc - quote.l) / range) * 520));
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 330">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320">
 
       <!-- Background -->
       <rect width="600" height="320" fill="#1e293b" />

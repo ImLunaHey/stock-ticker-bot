@@ -38,7 +38,17 @@ const main = async () => {
     }
 
     const stock = await getStock(ticker);
+
+    if (stock.d === null || stock.dp === null) {
+      console.error(`Stock data is not available for ${ticker}`);
+      return;
+    }
+
     const profile = await getStockProfile(ticker);
+    if (Object.keys(profile).length === 0) {
+      console.error(`Stock profile is not available for ${ticker}`);
+      return;
+    }
 
     const altText = makeAltText(profile, stock);
     const svg = makeTickerImage(profile, stock);

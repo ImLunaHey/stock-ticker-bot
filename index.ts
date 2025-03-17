@@ -37,8 +37,9 @@ const main = async () => {
       return;
     }
 
-    const stock = await getStock(ticker);
+    console.info(`${mention.author.handle} asked for the ticker ${ticker}`);
 
+    const stock = await getStock(ticker);
     if (stock.d === null || stock.dp === null) {
       console.error(`Stock data is not available for ${ticker}`);
       return;

@@ -58,7 +58,9 @@ const main = async () => {
     const blob = new Blob([imageBuffer], { type: 'image/png' });
 
     await mention.reply({
-      text: altText,
+      text: `Hey @${
+        mention.author.handle
+      }, here's the ticker for ${ticker}, this was generated at ${new Date().toLocaleString()}`,
       images: [
         {
           alt: altText,

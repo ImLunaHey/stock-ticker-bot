@@ -7,73 +7,79 @@ export const makeTickerImage = (profile: StockProfile, quote: StockQuote) => {
   const isNegative = quote.d < 0;
   const changeColor = isNegative ? '#ef4444' : '#22c55e';
 
+  // Helper function to escape XML special characters
+  const escapeXml = (str: string) => {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  };
+
   // Calculate dot positions based on actual prices
   const range = quote.h - quote.l;
-  const openDotPosition = Math.max(30, Math.min(490, ((quote.o - quote.l) / range) * 520));
-  const currentDotPosition = Math.max(30, Math.min(490, ((quote.c - quote.l) / range) * 520));
-  const prevCloseDotPosition = Math.max(30, Math.min(490, ((quote.pc - quote.l) / range) * 520));
+  const openDotPosition = ((quote.o - quote.l) / range) * 520;
+  const currentDotPosition = ((quote.c - quote.l) / range) * 520;
+  const prevCloseDotPosition = ((quote.pc - quote.l) / range) * 520;
 
-  return `
+  // Pre-calculate all formatted values with XML escaping
+  const displayName = escapeXml(profile.name.length > 25 ? profile.name.substring(0, 22) + '...' : profile.name);
+  const currentPrice = quote.c.toFixed(2);
+  const priceChange = (quote.d > 0 ? '+' : '') + quote.d.toFixed(2);
+  const percentChange = (quote.dp > 0 ? '+' : '') + quote.dp.toFixed(2);
+  const prevClose = quote.pc.toFixed(2);
+  const openPrice = quote.o.toFixed(2);
+  const highPrice = quote.h.toFixed(2);
+  const lowPrice = quote.l.toFixed(2);
+  const timestamp = new Date(quote.t * 1000).toLocaleString();
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320">
-
       <!-- Background -->
       <rect width="600" height="320" fill="#1e293b" />
       
       <!-- Header section -->
       <g transform="translate(40, 50)">
         <!-- Stock Ticker -->
-        <text x="0" y="0" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#f8fafc">${
-          profile.ticker
-        }</text>
-        
-        <!-- Stock Name - truncate if needed -->
-        <text x="0" y="30" font-family="Arial, sans-serif" font-size="18" fill="#94a3b8">${
-          profile.name.length > 25 ? profile.name.substring(0, 22) + '...' : profile.name
-        }</text>
-        
-        <!-- Current Price - moved slightly right -->
-        <text x="520" y="0" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#f8fafc" text-anchor="end">$${quote.c.toFixed(
-          2,
+        <text x="0" y="0" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#f8fafc">${escapeXml(
+          profile.ticker,
         )}</text>
         
-        <!-- Price Change - moved slightly right -->
-        <text x="520" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="${changeColor}" text-anchor="end">${
-    quote.d > 0 ? '+' : ''
-  }${quote.d.toFixed(2)} (${quote.dp > 0 ? '+' : ''}${quote.dp.toFixed(2)}%)</text>
+        <!-- Stock Name -->
+        <text x="0" y="30" font-family="Arial, sans-serif" font-size="18" fill="#94a3b8">${displayName}</text>
+        
+        <!-- Current Price -->
+        <text x="520" y="0" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#f8fafc" text-anchor="end">$${currentPrice}</text>
+        
+        <!-- Price Change -->
+        <text x="520" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="${changeColor}" text-anchor="end">${priceChange} (${percentChange}%)</text>
       </g>
       
       <!-- Divider -->
-      <line x1="40" y1="100" x2="560" y2="100" stroke="#334155" strokeWidth="2" />
+      <line x1="40" y1="100" x2="560" y2="100" stroke="#334155" stroke-width="2" />
       
       <!-- Key metrics section -->
       <g transform="translate(40, 140)">
         <!-- Four key metrics in a row -->
         <g>
           <text x="0" y="0" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Previous Close</text>
-          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${quote.pc.toFixed(
-            2,
-          )}</text>
+          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${prevClose}</text>
         </g>
         
         <g transform="translate(130, 0)">
           <text x="0" y="0" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Open</text>
-          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${quote.o.toFixed(
-            2,
-          )}</text>
+          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${openPrice}</text>
         </g>
         
         <g transform="translate(260, 0)">
           <text x="0" y="0" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Day's High</text>
-          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${quote.h.toFixed(
-            2,
-          )}</text>
+          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${highPrice}</text>
         </g>
         
         <g transform="translate(390, 0)">
           <text x="0" y="0" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Day's Low</text>
-          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${quote.l.toFixed(
-            2,
-          )}</text>
+          <text x="0" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#f8fafc">$${lowPrice}</text>
         </g>
       </g>
       
@@ -82,7 +88,7 @@ export const makeTickerImage = (profile: StockProfile, quote: StockQuote) => {
         <!-- Range bar -->
         <rect x="0" y="10" width="520" height="8" rx="4" fill="#334155" />
         
-        <!-- Dot markers with symbols instead of text -->
+        <!-- Dot markers with symbols -->
         <g>
           <circle cx="${openDotPosition}" cy="14" r="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />
           <text x="${openDotPosition}" y="16" font-family="Arial, sans-serif" font-size="8" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">O</text>
@@ -99,12 +105,10 @@ export const makeTickerImage = (profile: StockProfile, quote: StockQuote) => {
         </g>
         
         <!-- Low price label -->
-        <text x="10" y="40" font-family="Arial, sans-serif" font-size="13" fill="#94a3b8">$${quote.l.toFixed(2)}</text>
+        <text x="10" y="40" font-family="Arial, sans-serif" font-size="13" fill="#94a3b8">$${lowPrice}</text>
         
         <!-- High price label -->
-        <text x="510" y="40" font-family="Arial, sans-serif" font-size="13" fill="#94a3b8" text-anchor="end">$${quote.h.toFixed(
-          2,
-        )}</text>
+        <text x="510" y="40" font-family="Arial, sans-serif" font-size="13" fill="#94a3b8" text-anchor="end">$${highPrice}</text>
       </g>
       
       <!-- Legend at the bottom -->
@@ -131,11 +135,9 @@ export const makeTickerImage = (profile: StockProfile, quote: StockQuote) => {
         </g>
       </g>
       
-      <!-- Timestamp - moved to its own line -->
+      <!-- Timestamp -->
       <g transform="translate(300, 310)">
-        <text x="0" y="2" font-family="Arial, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Data as of ${new Date(
-          quote.t * 1000,
-        ).toLocaleString()}</text>
+        <text x="0" y="2" font-family="Arial, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Data as of ${timestamp}</text>
       </g>
     </svg>
   `;

@@ -4,7 +4,7 @@ import { makeImage } from './make-image';
 import { getStock, getStockProfile, makeAltText, makeTickerImage } from './ticker';
 
 const main = async () => {
-  const ticker = 'tsla';
+  const ticker = 'DJT';
   const stock = await getStock(ticker);
 
   if (stock.d === null || stock.dp === null) {
@@ -17,6 +17,9 @@ const main = async () => {
     console.error(`Stock profile is not available for ${ticker}`);
     return;
   }
+
+  console.info(stock);
+  console.info(profile);
 
   const altText = makeAltText(profile, stock);
   const svg = makeTickerImage(profile, stock);
